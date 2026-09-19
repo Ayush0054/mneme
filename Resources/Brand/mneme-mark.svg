@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="96" height="288" viewBox="0 0 32 96" role="img" aria-labelledby="title desc">
+  <title id="title">Mneme</title>
+  <desc id="desc">Three items in order: a filled brass dot above two open ink rings.</desc>
+  <style>
+    .ink { stroke: #292e28; }
+    .brass { fill: #a77633; }
+    @media (prefers-color-scheme: dark) {
+      .ink { stroke: #f0ece2; }
+      .brass { fill: #d1a65d; }
+    }
+  </style>
+  <g class="ink" fill="none" stroke-width="4" stroke-linecap="round">
+    <path d="M16 26V34"/>
+    <circle cx="16" cy="48" r="12"/>
+    <circle cx="16" cy="82" r="12"/>
+  </g>
+  <circle class="brass" cx="16" cy="14" r="12"/>
+</svg>
