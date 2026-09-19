@@ -49,6 +49,14 @@ Leave **Collect copies** on, copy several values, focus a destination field, and
 
 **Smart Paste** reads the focused field's Accessibility metadata and sends up to 12 candidate excerpts (1,200 characters each) plus field context to TypeSafe. Jev chooses an item ID; Mneme pastes the original text unchanged after checking the destination. Unclear matches are left for you to choose.
 
+## What TypeSafe / Jev does
+
+Mneme uses [TypeSafe's Python SDK](https://docs.typesafe.ai/sdk/python) with `jev-1.13.0`. Jev returns a typed choice and probabilities over candidates supplied by Mneme. It does not generate replacement text, control your Mac, or receive screenshots. Native code owns clipboard access, candidate creation, destination checks, and the actual paste.
+
+For extraction, Mneme will find exact spans locally and ask Jev which span belongs in the field—the [pre-parsed value selection pattern](https://docs.typesafe.ai/cookbooks/pre_parsed_value_extraction_cookbook). For forms, each field gets its own selection question. No suitable match is a valid answer.
+
+**Being implemented next:** destination-and-value review with **Paste / Choose another**, an ambiguity chooser, previewed extraction from copied blocks, and a reviewed multi-field mapping before filling. These additions are not available in the current commit yet. Extraction and form filling will require confirmation, regardless of the automatic-paste setting.
+
 ## Current limits
 
 This is an early development version: **plain text only**, with no image/file history, sync, OCR, or automatic form navigation. A sent paste keystroke does not guarantee the destination accepted it; use **Return last sent item to queue** if needed.
