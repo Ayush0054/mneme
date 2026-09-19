@@ -64,3 +64,7 @@ This is an early development version: **plain text only**, with no image/file hi
 Capture and ordered paste stay local. Only explicit Smart Paste requests use the cloud. History stays in memory by default; optional saved history is local and **unencrypted**. Secret filtering is not comprehensive.
 
 Build locally: there is no notarized download yet. Keep the project folder in place—the packaged app locates `.env` and the Python helper there. Repackage after moving the folder. Fonts and their SIL Open Font Licenses are in [Resources/Fonts](Resources/Fonts).
+
+## License
+
+[MIT](LICENSE) © 2026 Ayush Jha. Bundled fonts retain their SIL Open Font Licenses.
