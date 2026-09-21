@@ -152,8 +152,7 @@ struct ClipboardPanel: View {
                         }
                         .padding(.vertical, 12)
                         ForEach(model.suggestions) { clip in
-                            ClipRow(clip: clip, number: nil, isQueue: false,
-                                    isSuggested: clip.id == model.suggestedID, model: model)
+                            ClipRow(clip: clip, number: nil, isQueue: false, model: model)
                         }
                         BookRule().padding(.vertical, 10)
                     }
@@ -162,7 +161,7 @@ struct ClipboardPanel: View {
                     } else {
                         ForEach(model.visibleClips) { clip in
                             ClipRow(clip: clip, number: rowNumber(clip),
-                                    isQueue: model.section == .queue, isSuggested: false, model: model)
+                                    isQueue: model.section == .queue, model: model)
                         }
                     }
                 }
@@ -248,7 +247,6 @@ private struct ClipRow: View {
     let clip: Clip
     let number: Int?
     let isQueue: Bool
-    let isSuggested: Bool
     @Bindable var model: ClipboardModel
 
     var body: some View {
@@ -258,17 +256,17 @@ private struct ClipRow: View {
                     if let number {
                         Text(String(number)).font(BookFonts.serif(43)).tracking(-1)
                     } else {
-                        Image(systemName: isSuggested ? "sparkles" : "text.alignleft")
+                        Image(systemName: "text.alignleft")
                             .font(.system(size: 18, weight: .light)).padding(.top, 6)
                     }
                 }
-                .foregroundStyle(isSuggested ? BookTheme.accent : BookTheme.muted)
+                .foregroundStyle(BookTheme.muted)
                 .frame(width: 45, alignment: .leading).accessibilityHidden(true)
                 VStack(alignment: .leading, spacing: 9) {
                     Text(clip.preview).font(BookFonts.sans(13)).lineSpacing(3)
                         .lineLimit(3).frame(maxWidth: .infinity, alignment: .leading)
                     HStack(spacing: 6) {
-                        Text(isSuggested ? "SUGGESTED / \(clip.source)" : clip.source)
+                        Text(clip.source)
                             .font(BookFonts.sans(9, weight: .medium)).tracking(0.5)
                             .foregroundStyle(BookTheme.muted).lineLimit(1)
                         Spacer(minLength: 2)
@@ -292,10 +290,7 @@ private struct ClipRow: View {
                 }
                 .padding(.top, 5)
             }
-            .padding(.vertical, 14).padding(.horizontal, isSuggested ? 8 : 0)
-            .background {
-                if isSuggested { RoundedRectangle(cornerRadius: 10).fill(BookTheme.accent.opacity(0.08)) }
-            }
+            .padding(.vertical, 14)
             BookRule()
         }
     }

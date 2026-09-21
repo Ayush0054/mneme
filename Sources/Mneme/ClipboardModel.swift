@@ -18,7 +18,6 @@ final class ClipboardModel {
     }
     var status = "Copy a few things. Paste them in order."
     var suggestions: [Clip] = []
-    var suggestedID: UUID?
     var targetLabel = ""
     var lastSent: Clip?
     var apiKeyDraft = ""
@@ -243,7 +242,7 @@ final class ClipboardModel {
         // Smart Paste reuses recent source copies across fields; ordered paste owns the queue.
         let pool = Array(history.prefix(12))
         guard !pool.isEmpty else { status = "Copy some text first."; NSSound.beep(); return }
-        suggestions.removeAll(); suggestedID = nil
+        suggestions.removeAll()
         isBusy = true
         let token = UUID(); requestID = token
         Task { @MainActor in
@@ -281,7 +280,7 @@ final class ClipboardModel {
                     && confidence >= 0.85 && probability >= 0.90 && probability - runnerUp >= 0.25 {
                     // Paste the classified value, never its parent contact block.
                     try TargetAccess.paste(selected.text, into: target, writeClipboard: writeClipboard)
-                    suggestions.removeAll(); suggestedID = nil
+                    suggestions.removeAll()
                     status = "Value sent to \(target.context.displayName). Original copy kept for the next field."
                 } else {
                     suggestions = pool
