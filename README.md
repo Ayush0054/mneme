@@ -1,17 +1,13 @@
-
-
-https://github.com/user-attachments/assets/0db14573-b9ed-4c77-95a4-24c29f6736d2
-
 # Mneme · μνήμη
 
 **Your clipboard, kept in order.**
 
 A native macOS menu-bar clipboard with an ordered paste queue and optional AI matching for the field you're filling.
 
-[![Mneme's dark glass clipboard panel — watch the demo](docs/images/mneme.png)](docs/videos/mneme-demo.mp4)
+![Mneme's dark glass clipboard panel](docs/images/mneme.png)
 <sub>Presentation image polished from an app screenshot.</sub>
 
-[▶ Watch the Smart Paste demo · 30 seconds](docs/videos/mneme-demo.mp4)
+https://github.com/user-attachments/assets/0db14573-b9ed-4c77-95a4-24c29f6736d2
 
 ## Features
 
