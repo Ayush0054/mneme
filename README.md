@@ -4,8 +4,10 @@
 
 A native macOS menu-bar clipboard with an ordered paste queue and optional AI matching for the field you're filling.
 
-![Mneme's dark glass clipboard panel](docs/images/mneme.png)
+[![Mneme's dark glass clipboard panel — watch the demo](docs/images/mneme.png)](docs/videos/mneme-demo.mp4)
 <sub>Presentation image polished from an app screenshot.</sub>
+
+[▶ Watch the Smart Paste demo · 30 seconds](docs/videos/mneme-demo.mp4)
 
 ## Features
 
