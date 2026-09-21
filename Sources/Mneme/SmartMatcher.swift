@@ -14,6 +14,9 @@ enum SmartMatcher {
             throw MnemeError.message("Python helper is not set up. Follow the setup steps in README.md.")
         }
         let payload = try JSONEncoder().encode(request)
+        guard payload.count <= 500_000 else {
+            throw MnemeError.message("The Smart Paste request is too large. Copy a smaller block.")
+        }
         return try await withCheckedThrowingContinuation { continuation in
             DispatchQueue.global(qos: .userInitiated).async {
                 let process = Process()
@@ -44,9 +47,10 @@ enum SmartMatcher {
                     }
                     try input.fileHandleForWriting.write(contentsOf: payload)
                     try input.fileHandleForWriting.close()
-                    // Helper emits one small JSON response, no logs or probability arrays.
-                    process.waitUntilExit()
+                    // Drain the larger candidate distribution before waiting, so a full pipe
+                    // cannot block the helper from exiting. The timeout still bounds this read.
                     let data = output.fileHandleForReading.readDataToEndOfFile()
+                    process.waitUntilExit()
                     guard process.terminationStatus == 0, !data.isEmpty else {
                         throw MnemeError.message("Smart Paste timed out or the Python helper could not start.")
                     }

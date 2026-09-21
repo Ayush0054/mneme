@@ -23,7 +23,7 @@ struct BookSettingsPanel: View {
     private var smartPaste: some View {
         VStack(alignment: .leading, spacing: 12) {
             BookSectionHeading(title: "Smart Paste")
-            note("When you invoke Smart Paste, up to 12 text excerpts (1,200 characters each), their source app names, and the destination field’s label, placeholder, and help text are sent to TypeSafe AI.")
+            note("When you invoke Smart Paste, Mneme finds values in the newest 12 copies. Up to 60 values (1,200 characters each), their source labels and app names, and the destination field’s label, placeholder, and help text are sent to TypeSafe AI.")
             Toggle("Enable TypeSafe Smart Paste", isOn: $model.cloudEnabled)
                 .toggleStyle(.switch).controlSize(.small)
             HStack(spacing: 8) {
@@ -43,9 +43,7 @@ struct BookSettingsPanel: View {
                 }
             }
             note("You can also set TYPESAFE_API_KEY in the project’s .env file. It takes precedence and reloads when you invoke Smart Paste.")
-            Toggle("Paste strong matches automatically", isOn: $model.autoPaste)
-                .toggleStyle(.switch).controlSize(.small)
-            note("Off: review the suggested item. On: strong matches paste after your shortcut; uncertain matches still show a chooser.")
+            note("Copy a contact block once; Smart Paste inserts the matching name, email, or company into each focused field without opening Mneme. The original copy stays available. If it cannot paste, you hear an error sound. Open Mneme yourself to read the reason or choose an item.")
         }
     }
 

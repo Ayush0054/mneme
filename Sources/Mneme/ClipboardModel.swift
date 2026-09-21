@@ -13,7 +13,9 @@ final class ClipboardModel {
     var search = ""
     var isPaused = false
     var isCollecting = true
-    var isBusy = false
+    var isBusy = false {
+        didSet { setPasteProgress?(isBusy) }
+    }
     var status = "Copy a few things. Paste them in order."
     var suggestions: [Clip] = []
     var suggestedID: UUID?
@@ -39,15 +41,13 @@ final class ClipboardModel {
             saveHistory()
         }
     }
-    var autoPaste = UserDefaults.standard.bool(forKey: "autoPaste") {
-        didSet { UserDefaults.standard.set(autoPaste, forKey: "autoPaste") }
-    }
     var excludedApps = UserDefaults.standard.string(forKey: "excludedApps") ?? "" {
         didSet { UserDefaults.standard.set(excludedApps, forKey: "excludedApps") }
     }
 
     @ObservationIgnored var showPanel: (() -> Void)?
     @ObservationIgnored var hidePanel: (() -> Void)?
+    @ObservationIgnored var setPasteProgress: ((Bool) -> Void)?
     @ObservationIgnored var changeShortcut: ((ShortcutAction, Shortcut) -> Void)?
     @ObservationIgnored var resetShortcuts: (() -> Void)?
     @ObservationIgnored var savedTarget: PasteTarget?
@@ -230,16 +230,19 @@ final class ClipboardModel {
         }
     }
 
+    // This action never opens the panel. The shortcut pastes directly when matching succeeds.
     func smartPaste(fromPanel: Bool = false) {
         guard !isBusy else { return }
+        // Include a copy made just before the shortcut, ahead of the capture timer.
+        pollClipboard()
         do { try refreshAPIKey() }
-        catch { section = .settings; status = error.localizedDescription; showPanel?(); return }
+        catch { section = .settings; status = error.localizedDescription; NSSound.beep(); return }
         guard cloudEnabled, let key else {
-            section = .settings; status = "Set TYPESAFE_API_KEY in .env or save a key here, then enable Smart Paste."; showPanel?(); return
+            section = .settings; status = "Set TYPESAFE_API_KEY in .env or save a key here, then enable Smart Paste."; NSSound.beep(); return
         }
-        // While a queue exists, do not revive old history items already consumed from it.
-        let pool = Array((queue.isEmpty ? history : queue).prefix(12))
-        guard !pool.isEmpty else { status = "Copy some text first."; showPanel?(); return }
+        // Smart Paste reuses recent source copies across fields; ordered paste owns the queue.
+        let pool = Array(history.prefix(12))
+        guard !pool.isEmpty else { status = "Copy some text first."; NSSound.beep(); return }
         suggestions.removeAll(); suggestedID = nil
         isBusy = true
         let token = UUID(); requestID = token
@@ -251,38 +254,44 @@ final class ClipboardModel {
                 savedTarget = target; targetLabel = target.context.displayName
                 guard target.context.hasClues else {
                     suggestions = pool; section = .queue
-                    status = "This field has no readable label. Choose an item below."; showPanel?(); return
+                    status = "This field has no readable label. Open Mneme to choose an item manually."; NSSound.beep(); return
                 }
-                status = "Finding a match for \(target.context.displayName)…"
+                let candidates = Candidate.values(from: pool, allowMultiline: target.context.role == "AXTextArea")
+                guard !candidates.isEmpty else {
+                    status = "No complete copied value fits this field. Nothing was pasted."; NSSound.beep(); return
+                }
+                status = "Finding a value for \(target.context.displayName)…"
                 let result = try await SmartMatcher.match(MatchRequest(
-                    apiKey: key, field: target.context, candidates: pool.map(Candidate.init)
+                    apiKey: key, field: target.context, candidates: candidates
                 ))
                 guard requestID == token, cloudEnabled else { return }
                 guard TargetAccess.isStillFocused(target) else {
-                    status = "Focus changed while matching. Nothing was pasted."; showPanel?(); return
+                    status = "Focus changed while matching. Nothing was pasted."; NSSound.beep(); return
                 }
                 guard let choice = result.choice, choice != "none",
-                      let selected = pool.first(where: { $0.id.uuidString == choice }) else {
+                      let selected = candidates.first(where: { $0.id == choice }) else {
                     suggestions = pool; section = .queue
-                    status = "No clear match for \(target.context.displayName). Choose an item."; showPanel?(); return
+                    status = "No clear match for \(target.context.displayName). Open Mneme to choose an item manually."; NSSound.beep(); return
                 }
                 let confidence = result.confidence ?? 0
                 let probability = result.probabilities?[choice] ?? 0
                 let runnerUp = result.probabilities?.filter { $0.key != choice }.map(\.value).max() ?? 1
                 // Conservative provisional thresholds; confidence is not an accuracy guarantee.
-                if autoPaste && selected.text.unicodeScalars.count <= 1_200
+                if selected.text.unicodeScalars.count <= 1_200
                     && confidence >= 0.85 && probability >= 0.90 && probability - runnerUp >= 0.25 {
-                    try dispatch(selected, target: target)
+                    // Paste the classified value, never its parent contact block.
+                    try TargetAccess.paste(selected.text, into: target, writeClipboard: writeClipboard)
+                    suggestions.removeAll(); suggestedID = nil
+                    status = "Value sent to \(target.context.displayName). Original copy kept for the next field."
                 } else {
-                    suggestions = [selected] + pool.filter { $0.id != selected.id }
-                    suggestedID = selected.id
+                    suggestions = pool
                     section = .queue
-                    status = "Suggested match for \(target.context.displayName). Choose Paste to use it."
-                    showPanel?()
+                    status = "No clear value for \(target.context.displayName). Nothing was pasted."
+                    NSSound.beep()
                 }
             } catch {
                 guard requestID == token else { return }
-                status = error.localizedDescription; showPanel?()
+                status = error.localizedDescription; NSSound.beep()
             }
         }
     }

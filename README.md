@@ -47,15 +47,15 @@ Set `TYPESAFE_API_KEY` in `.env`, then enable **TypeSafe Smart Paste** in Mneme'
 
 Leave **Collect copies** on, copy several values, focus a destination field, and use **Paste next**. Move between fields yourself. Ordinary `⌘V` is unchanged. Change shortcut presets in Settings.
 
-**Smart Paste** reads the focused field's Accessibility metadata and sends up to 12 candidate excerpts (1,200 characters each) plus field context to TypeSafe. Jev chooses an item ID; Mneme pastes the original text unchanged after checking the destination. Unclear matches are left for you to choose.
+**Smart Paste:** copy a contact block once. Click **Full name** and press `⌥V` to paste the name; click **Work email** and press `⌥V` to paste the email; repeat for **Company**. The original copy stays available. Clear matches paste directly, without opening the panel. A small spinner follows the pointer while Mneme matches and pastes; it disappears on completion, error, or cancellation. Uncertain matches and errors leave the field untouched and play an error sound; open Mneme manually to read the status.
 
 ## What TypeSafe / Jev does
 
-Mneme uses [TypeSafe's Python SDK](https://docs.typesafe.ai/sdk/python) with `jev-1.13.0`. Jev returns a typed choice and probabilities over candidates supplied by Mneme. It does not generate replacement text, control your Mac, or receive screenshots. Native code owns clipboard access, candidate creation, destination checks, and the actual paste.
+Mneme locally finds exact values in the newest 12 copies: labeled lines such as `Name: Ada Lovelace`, email addresses, phone-like numbers, links, and individual lines. It considers the first 1,200 characters of each source, excludes incomplete trailing spans, and offers up to 60 distinct candidates. Single-line fields cannot receive multiline blocks.
 
-For extraction, Mneme will find exact spans locally and ask Jev which span belongs in the field—the [pre-parsed value selection pattern](https://docs.typesafe.ai/cookbooks/pre_parsed_value_extraction_cookbook). For forms, each field gets its own selection question. No suitable match is a valid answer.
+[TypeSafe's Python SDK](https://docs.typesafe.ai/sdk/python) with `jev-1.13.0` classifies which candidate belongs in the focused field using its label, placeholder, and help text. Jev returns a candidate ID or **none**; it does not generate replacement text or control your Mac. Mneme rechecks the focused destination and pastes only the selected value. Strong matches require confidence ≥ 0.85, probability ≥ 0.90, and a ≥ 0.25 lead over alternatives; these thresholds are provisional.
 
-**Being implemented next:** destination-and-value review with **Paste / Choose another**, an ambiguity chooser, previewed extraction from copied blocks, and a reviewed multi-field mapping before filling. These additions are not available in the current commit yet. Extraction and form filling will require confirmation, regardless of the automatic-paste setting.
+There is no separate extraction button or confirmation step. Mneme does not navigate or submit forms: focus each field and invoke the shortcut. Unstructured paragraphs or values not found by local parsing may produce no match.
 
 ## Current limits
 

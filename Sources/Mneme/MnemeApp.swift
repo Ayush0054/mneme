@@ -17,6 +17,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private let model = ClipboardModel()
     private var statusItem: NSStatusItem?
     private let popover = NSPopover()
+    private let pasteProgress = CursorPasteProgress()
     private var hotKeys: HotKeys?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -37,6 +38,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         popover.contentViewController = NSHostingController(rootView: ClipboardPanel(model: model, height: panelHeight))
         model.showPanel = { [weak self] in self?.openPanel(captureTarget: false) }
         model.hidePanel = { [weak self] in self?.popover.performClose(nil) }
+        model.setPasteProgress = { [weak self] visible in
+            self?.pasteProgress.setVisible(visible)
+        }
         model.start()
         hotKeys = HotKeys(settings: model.shortcuts) { [weak self] action in
             guard let self else { return }
@@ -57,7 +61,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             self.syncShortcuts()
         }
         syncShortcuts()
-        openPanel(captureTarget: true)
+        // Launch quietly; the panel opens only when requested by the user.
     }
 
     func applicationWillTerminate(_ notification: Notification) { model.stop() }

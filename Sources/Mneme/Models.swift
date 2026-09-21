@@ -31,13 +31,13 @@ struct Candidate: Encodable, Sendable {
     let id: String
     let text: String
     let source: String
-    let truncated: Bool
+    let label: String
 
-    init(_ clip: Clip) {
-        id = clip.id.uuidString
-        text = clip.text.prefixScalars(1_200)
+    init(clip: Clip, text: String, label: String, index: Int) {
+        id = "\(clip.id.uuidString):\(index)"
+        self.text = text
         source = clip.source.prefixScalars(300)
-        truncated = clip.text.unicodeScalars.count > 1_200
+        self.label = label.prefixScalars(300)
     }
 }
 
