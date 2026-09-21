@@ -49,6 +49,18 @@ Leave **Collect copies** on, copy several values, focus a destination field, and
 
 **Smart Paste:** copy a contact block once. Click **Full name** and press `⌥V` to paste the name; click **Work email** and press `⌥V` to paste the email; repeat for **Company**. The original copy stays available. Clear matches paste directly, without opening the panel. A small spinner follows the pointer while Mneme matches and pastes; it disappears on completion, error, or cancellation. Uncertain matches and errors leave the field untouched and play an error sound; open Mneme manually to read the status.
 
+## Try the demo
+
+The [demo form](demo/index.html) contains a fictional contact and three labeled fields. With Mneme running and Smart Paste enabled, copy the contact once, focus each field, and press `⌥V`.
+
+Serve it from the repository root:
+
+```sh
+python3 -m http.server 8766 --bind 127.0.0.1
+```
+
+Open [localhost:8766/demo/](http://localhost:8766/demo/). This server only serves the demo page; Mneme starts its own Python helper when needed.
+
 ## What TypeSafe / Jev does
 
 Mneme locally finds exact values in the newest 12 copies: labeled lines such as `Name: Ada Lovelace`, email addresses, phone-like numbers, links, and individual lines. It considers the first 1,200 characters of each source, excludes incomplete trailing spans, and offers up to 60 distinct candidates. Single-line fields cannot receive multiline blocks.
